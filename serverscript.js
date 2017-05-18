@@ -65,7 +65,7 @@ handlers.PurchaseCharacter = function (args) {
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": characterId,
-        "Data": { "SoulAttackLevel": 0, "SoulHitPointLevel": 0 }
+        "Data": { "Rank": 0, "SoulHitPointLevel": 0 }
     });
     var itemId = "";
     if (classType == "Rogue") {
