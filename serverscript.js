@@ -104,7 +104,7 @@ handlers.ClearLevel = function (args)
     log.info("townId " + townId);
     var items = [];
     var realItems = [];
-    for(var i = 0; i < 10; i++)
+    for(var i = 0; i < 5; i++)
     {
         var townItem = server.EvaluateRandomResultTable(
             {
