@@ -895,9 +895,7 @@ handlers.GetDropItems = function (args) {
     var dropTable = server.GetRandomResultTables(
         {
             "CatalogVersion": catalogVersion,
-            "TableIDs": [
-                "Town_0"
-            ]
+            "TableIDs": args.TownIds
         }
     );
     return dropTable;
