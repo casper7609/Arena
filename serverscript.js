@@ -96,36 +96,15 @@ handlers.PurchaseCharacter = function (args) {
     }
     return { "CharacterId": characterId };
 };
-handlers.KilledMob = function (args)
+handlers.ClearLevel = function (args)
 {
-    var mobType = args.MobType;
     var townLevel = parseInt(args.TownLevel);
-    var soulGainAmplifier = parseFloat(args.SoulGainAmplifier) + 1;
-    var dungeonLevel = parseInt(args.DungeonLevel) + 1;
-    var x = (townLevel * 100 + dungeonLevel);
-    var townId = "Town_" + parseInt(parseInt(townLevel) / 6);
-    var sl = 0;
-    var sp = 0;
-    var cp = 0;
-    var userInventory = server.GetUserInventory({
-        "PlayFabId": currentPlayerId
-    });
+    var dungeonLevel = parseInt(args.DungeonLevel);
+    var townId = "Town_" + townLevel + "" + parseInt(dungeonLevel / 10);
+    log.info("townId " + townId);
     var items = [];
     var realItems = [];
-    var invMax = UserInventoryMax;
-    var userData = server.GetUserData(
-        {
-            "PlayFabId": currentPlayerId,
-            "Keys": [
-                "UserInventoryMax"
-            ]
-        }
-    );
-    if (userData.UserInventoryMax && userData.UserInventoryMax.Value)
-    {
-        invMax = (userData.UserInventoryMax.Value);
-    }
-    if (userInventory.Inventory.length < invMax)
+    for(var i = 0; i < 10; i++)
     {
         var townItem = server.EvaluateRandomResultTable(
             {
@@ -152,44 +131,7 @@ handlers.KilledMob = function (args)
             }
         }
     }
-    //if normal
-    if (mobType == "Normal")
-    {
-        sl = Math.floor((slDefault + 10000 * x / (x + 20000)) * soulGainAmplifier);
-        server.AddUserVirtualCurrency(
-            {
-                "PlayFabId": currentPlayerId,
-                "VirtualCurrency": "SL",
-                "Amount": sl
-            }
-        );
-    }
-    else if (mobType == "NormalBoss")
-    {
-        sp = Math.floor(slDefault + 10000 * x / (x + 20000));
-        //if normal boss(Boss)
-        server.AddUserVirtualCurrency(
-            {
-                "PlayFabId": currentPlayerId,
-                "VirtualCurrency": "SP",
-                "Amount": sp
-            }
-        );
-    }
-    else if (mobType == "EliteBoss")
-    {
-        cp = Math.floor(slDefault + 10000 * x / (x + 20000));
-        //if elite boss
-        server.AddUserVirtualCurrency(
-            {
-                "PlayFabId": currentPlayerId,
-                "VirtualCurrency": "CP",
-                "Amount": cp
-            }
-        );
-    }
-    
-    var result = { "SL": sl, "SP": sp, "CP": cp };
+    var result = {};
     if (realItems.length > 0)
     {
         result.Items = realItems;
