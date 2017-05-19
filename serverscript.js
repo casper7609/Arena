@@ -949,3 +949,14 @@ handlers.MapQuestReward = function (args) {
 	);
     return {};
 };
+handlers.GetDropItems = function (args) {
+    var dropTable = server.GetRandomResultTables(
+        {
+            "CatalogVersion": catalogVersion,
+            "TableIDs": [
+                "Town_0"
+            ]
+        }
+    );
+    return dropTable;
+};
