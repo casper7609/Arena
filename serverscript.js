@@ -127,7 +127,7 @@ handlers.ClearLevel = function (args)
             );
             var grantedItems = itemGrantResult["ItemGrantResults"];
             for (var i = 0; i < grantedItems.length; i++) {
-                realItems.push(updateItemData(grantedItems[i]));
+                realItems.push(grantedItems[i]);
             }
         }
     }
