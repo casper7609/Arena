@@ -224,7 +224,8 @@ handlers.GetEnergyPoint = function (args) {
         {
             "PlayFabId": currentPlayerId,
             "Keys": [
-                "LastEnergyRequestTime"
+                "LastEnergyRequestTime",
+                "UserLevel"
             ],
         }
     );
@@ -253,13 +254,28 @@ handlers.GetEnergyPoint = function (args) {
     var userInv = server.GetUserInventory({
         "PlayFabId": currentPlayerId
     });
-
-    var highestLevel = GetHigestLevel();
+    var userLevel = 0;
+    if (userData.Data.UserLevel == null) {
+        log.info("Need to add UserLevel");
+        var updatedUserData = server.UpdateUserData(
+        {
+            "PlayFabId": currentPlayerId,
+            "Data": {
+                "UserLevel": 0
+            }
+        });
+        log.info("UpdateResult " + JSON.stringify(updatedUserData));
+        userLevel = 0;
+    }
+    else {
+        userLevel = parseInt(userData.Data.UserLevel.Value);
+        log.info("userLevel " + userLevel);
+    }
 
     var baseEnergy = userInv.VirtualCurrency.BE;
     var baseEnergyMax = 56;
     var additionalEnergy = userInv.VirtualCurrency.AE;
-    var additionalEnergyMax = highestLevel * 2;
+    var additionalEnergyMax = userLevel * 2;
     log.info("baseEnergy " + baseEnergy);
     log.info("baseEnergyMax " + baseEnergyMax);
     log.info("additionalEnergy " + additionalEnergy);
