@@ -114,7 +114,7 @@ handlers.ClearLevel = function (args)
             server.UnlockContainerItem(
                {
                    "PlayFabId": currentPlayerId,
-                   "ItemIds": townItem.ResultItemId
+                   "ContainerItemId": townItem.ResultItemId
                }
            );
         }
