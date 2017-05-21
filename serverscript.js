@@ -379,3 +379,30 @@ handlers.GetEnergyPoint = function (args) {
 
     return { Current: (additionalEnergy + baseEnergy), Max: (baseEnergyMax + additionalEnergyMax), TimeSecondsLeftTillNextGen: timeSecondsLeftTillNextGen };
 };
+
+handlers.CharLevelUp = function (args) {
+    log.info("GetEnergyPoint called PlayFabId " + currentPlayerId);
+    var userInv = server.GetUserInventory({
+        "PlayFabId": currentPlayerId
+    });
+    var price = parseInt(args.GD);
+    var currentGD = userInv.VirtualCurrency.GD;
+    if (currentGD < price) {
+        return { "Error": "Insufficient Gem" };
+    }
+    if (price > 0) {
+        server.SubtractUserVirtualCurrency(
+            {
+                "PlayFabId": currentPlayerId,
+                "VirtualCurrency": "GD",
+                "Amount": price
+            }
+        );
+    }
+    server.UpdateCharacterData({
+        "PlayFabId": currentPlayerId,
+        "CharacterId": args.CharacterId,
+        "Data": { "Level": args.Level}
+    });
+    return {};
+};
