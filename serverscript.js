@@ -150,10 +150,8 @@ handlers.SpendEnergyPoint = function (args) {
         "PlayFabId": currentPlayerId
     });
 
-    var townInfoData = getTownInfo(args);
-
-    var raidPoint = townInfoData.RaidPoint;
-    var adventurePoint = townInfoData.AdventurePoint;
+    var raidPoint = args.RaidPoint;
+    var adventurePoint = args.AdventurePoint;
     if (raidPoint != null) {
         var currentRaidPoint = userInv.VirtualCurrency.RP;
         if (currentRaidPoint < raidPoint) {
