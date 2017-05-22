@@ -109,11 +109,7 @@ handlers.ClearLevel = function (args)
                 "TableId": townId
             }
         );
-        if (townItem.ResultItemId.includes("Bundle"))
-        {
-            log.info("Bundle item " + JSON.stringify(townItem));
-        }
-        else if (townItem.ResultItemId != "Nothing") {
+        if (townItem.ResultItemId != "Nothing") {
             log.info("item " + JSON.stringify(townItem));
             items.push(townItem.ResultItemId);
         }
