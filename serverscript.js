@@ -111,7 +111,7 @@ handlers.ClearLevel = function (args)
         );
         if (townItem.ResultItemId.includes("Bundle"))
         {
-            
+            log.info("Bundle item " + JSON.stringify(townItem));
         }
         else if (townItem.ResultItemId != "Nothing") {
             log.info("item " + JSON.stringify(townItem));
