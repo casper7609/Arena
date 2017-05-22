@@ -113,21 +113,20 @@ handlers.ClearLevel = function (args)
             log.info("item " + JSON.stringify(townItem));
             items.push(townItem.ResultItemId);
         }
-        if (items.length > 0) {
-            var itemGrantResult = server.GrantItemsToUser(
-                {
-                    "CatalogVersion": catalogVersion,
-                    "PlayFabId": currentPlayerId,
-                    "ItemIds": items
-                }
-            );
-            var grantedItems = itemGrantResult["ItemGrantResults"];
-            for (var i = 0; i < grantedItems.length; i++) {
-                realItems.push(grantedItems[i]);
+    }
+    if (items.length > 0) {
+        var itemGrantResult = server.GrantItemsToUser(
+            {
+                "CatalogVersion": catalogVersion,
+                "PlayFabId": currentPlayerId,
+                "ItemIds": items
             }
+        );
+        var grantedItems = itemGrantResult["ItemGrantResults"];
+        for (var i = 0; i < grantedItems.length; i++) {
+            realItems.push(grantedItems[i]);
         }
     }
-
     var result = {};
     if (realItems.length > 0)
     {
