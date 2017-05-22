@@ -109,14 +109,9 @@ handlers.ClearLevel = function (args)
                 "TableId": townId
             }
         );
-        if (townItem.ResultItemId.includes("Container"))
+        if (townItem.ResultItemId.includes("Bundle"))
         {
-            server.UnlockContainerItem(
-               {
-                   "PlayFabId": currentPlayerId,
-                   "ContainerItemId": townItem.ResultItemId
-               }
-           );
+            
         }
         else if (townItem.ResultItemId != "Nothing") {
             log.info("item " + JSON.stringify(townItem));
