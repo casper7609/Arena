@@ -432,6 +432,7 @@ handlers.CharGradeUp = function (args) {
     {
         var item = itemList[i];
         server.ConsumeItem({
+            "PlayFabId": currentPlayerId,
             "ItemInstanceId": item.ItemId,
             "ConsumeCount": item.Count,
         });
