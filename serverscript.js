@@ -92,6 +92,111 @@ handlers.PurchaseCharacter = function (args) {
     }
     return { "CharacterId": characterId };
 };
+function updateItemData(item, characterId, mainFeature) {
+    log.info("updateItemData " + JSON.stringify(item));
+
+    var str = item.ItemId;
+    var rank = str.substring(str.lastIndexOf("_") + 1, str.lastIndexOf("_") + 2);
+    rank = parseInt(rank);
+    var chance = Math.min((rank + 1), 4);
+    //var newItemId = str.substr(0, str.lastIndexOf("_")) + "_" + rank + str.substr(str.lastIndexOf("_") + 2);
+    var weaponMainOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "CriticalChance", "CriticalDamage", "SoulGain"];
+    var armorMainOptions = ["MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint", "SoulGain"];
+    var accessoryMainOptions = ["AttackPower", "ArmorClass", "MagicResistance", "CriticalChance", "CriticalDamage", "SoulGain"];
+    var commonOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint", "CriticalChance", "CriticalDamage", "SoulGain"];
+    var fArray = [];
+    var customData = { "Enchant": "0" };
+    fArray.push({ "Key": "Enchant", "Value": "0" });
+    for (var i = 0; i < chance; i++) {
+        if (item.ItemClass == "Weapon") {
+            var picked = weaponMainOptions[Math.floor(Math.random() * weaponMainOptions.length)];
+            if (i == 0) {
+                if (mainFeature != null) {
+                    picked = mainFeature;
+                }
+                customData["Main"] = picked;
+                fArray.push({ "Key": "Main", "Value": picked });
+                customData[picked] = rand(100, (rank + 1) * 100).toString();
+                fArray.push({ "Key": picked, "Value": customData[picked] });
+            }
+            else {
+                customData[picked] = rand(100, (rank) * 100).toString();
+                fArray.push({ "Key": picked, "Value": customData[picked] });
+            }
+            weaponMainOptions.splice(weaponMainOptions.indexOf(picked), 1);
+        }
+        else if (item.ItemClass == "Armor") {
+            var picked = armorMainOptions[Math.floor(Math.random() * armorMainOptions.length)];
+            if (i == 0) {
+                if (mainFeature != null) {
+                    picked = mainFeature;
+                }
+                customData["Main"] = picked;
+                fArray.push({ "Key": "Main", "Value": picked });
+                customData[picked] = rand(100, (rank + 1) * 100).toString();
+                fArray.push({ "Key": picked, "Value": customData[picked] });
+            }
+            else {
+                customData[picked] = rand(100, (rank) * 100).toString();
+                fArray.push({ "Key": picked, "Value": customData[picked] });
+            }
+
+            armorMainOptions.splice(armorMainOptions.indexOf(picked), 1);
+        }
+        else {
+            var picked = "";
+            if (i == 0) {
+                if (mainFeature != null) {
+                    picked = mainFeature;
+                }
+                picked = accessoryMainOptions[Math.floor(Math.random() * accessoryMainOptions.length)];
+                customData["Main"] = picked;
+                fArray.push({ "Key": "Main", "Value": picked });
+                customData[picked] = rand(100, (rank + 1) * 100).toString();
+                fArray.push({ "Key": picked, "Value": customData[picked] });
+            }
+            else {
+                picked = commonOptions[Math.floor(Math.random() * commonOptions.length)];
+                customData[picked] = rand(100, (rank) * 100).toString();
+                fArray.push({ "Key": picked, "Value": customData[picked] });
+            }
+
+            accessoryMainOptions.splice(accessoryMainOptions.indexOf(picked), 1);
+            commonOptions.splice(commonOptions.indexOf(picked), 1);
+        }
+    }
+    var cData = {};
+    for (var i = 0; i < fArray.length; i++) {
+        cData[fArray[i].Key] = fArray[i].Value;
+        if (i > 0 && i % 4 == 0) {
+            var updateData = {
+                PlayFabId: currentPlayerId,
+                ItemInstanceId: item.ItemInstanceId,
+                Data: cData,
+            };
+            if (characterId != null) {
+                updateData["CharacterId"] = characterId;
+            }
+            var result = server.UpdateUserInventoryItemCustomData(updateData);
+            cData = {};
+        }
+    }
+    if (Object.keys(cData).length > 0 && Object.keys(cData).length < 5) {
+        var updateData = {
+            PlayFabId: currentPlayerId,
+            ItemInstanceId: item.ItemInstanceId,
+            Data: cData,
+        };
+        if (characterId != null) {
+            updateData["CharacterId"] = characterId;
+        }
+        var result = server.UpdateUserInventoryItemCustomData(updateData);
+        log.info("commit " + JSON.stringify(cData));
+    }
+
+    item["CustomData"] = customData;
+    return item;
+}
 handlers.ClearLevel = function (args)
 {
     var townLevel = parseInt(args.TownLevel);
