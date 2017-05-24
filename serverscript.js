@@ -540,3 +540,41 @@ handlers.CharGradeUp = function (args) {
     });
     return {};
 };
+handlers.SkillLevelStatus = function (args) {
+    log.info("GetEnergyPoint called PlayFabId " + currentPlayerId);
+    var userInv = server.GetUserInventory({
+        "PlayFabId": currentPlayerId
+    });
+    var price = parseInt(args.GD);
+    var currentGD = userInv.VirtualCurrency.GD;
+    if (currentGD < price) {
+        return { "Error": "Insufficient Gem" };
+    }
+    if (price > 0) {
+        server.SubtractUserVirtualCurrency(
+            {
+                "PlayFabId": currentPlayerId,
+                "VirtualCurrency": "GD",
+                "Amount": price
+            }
+        );
+    }
+
+    var itemList = JSON.parse(args.Items);
+    for (var i = 0; i < itemList.length; i++) {
+        var item = itemList[i];
+        server.ConsumeItem({
+            "PlayFabId": currentPlayerId,
+            "ItemInstanceId": item.ItemId,
+            "ConsumeCount": item.Count,
+        });
+    }
+    var updatedUserData = server.UpdateUserData(
+    {
+        "PlayFabId": currentPlayerId,
+        "Data": {
+            "SkillLevelStatus": args.SkillLevelStatus
+        }
+    });
+    return {};
+};
