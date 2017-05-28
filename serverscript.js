@@ -229,7 +229,13 @@ handlers.ClearLevel = function (args)
         );
         var grantedItems = itemGrantResult["ItemGrantResults"];
         for (var i = 0; i < grantedItems.length; i++) {
-            realItems.push(grantedItems[i]);
+            if (str.includes("GarbageItem") || str.includes("Bundle")) {
+                realItems.push(grantedItems[i]);
+            }
+            else
+            {
+                realItems.push(updateItemData(grantedItems[i]));
+            }
         }
     }
     var result = {};
@@ -474,7 +480,6 @@ handlers.GetEnergyPoint = function (args) {
 
     return { Current: (additionalEnergy + baseEnergy), Max: (baseEnergyMax + additionalEnergyMax), TimeSecondsLeftTillNextGen: timeSecondsLeftTillNextGen };
 };
-
 handlers.CharLevelUp = function (args) {
     log.info("GetEnergyPoint called PlayFabId " + currentPlayerId);
     var userInv = server.GetUserInventory({
