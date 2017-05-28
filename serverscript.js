@@ -229,6 +229,7 @@ handlers.ClearLevel = function (args)
         );
         var grantedItems = itemGrantResult["ItemGrantResults"];
         for (var i = 0; i < grantedItems.length; i++) {
+            var str = grantedItems[i].ItemId;
             if (str.includes("GarbageItem") || str.includes("Bundle")) {
                 realItems.push(grantedItems[i]);
             }
