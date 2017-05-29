@@ -584,3 +584,23 @@ handlers.SkillLevelStatus = function (args) {
     });
     return {};
 };
+handlers.DecomposeItems = function (args) {
+    var items = JSON.parse(args.Items);
+    var totalPrice = 0;
+    for (var i = 0; i < items.length; i++) {
+        var itemInstance = items[i];
+        server.RevokeInventoryItem({
+            "PlayFabId": currentPlayerId,
+            "ItemInstanceId": itemInstance.ItemInstanceId,
+        });
+        totalPrice += itemInstance.UnitPrice;
+    }
+    var goldGainResult = server.AddUserVirtualCurrency(
+        {
+            "PlayFabId": currentPlayerId,
+            "VirtualCurrency": "GD",
+            "Amount": totalPrice
+        }
+    );
+    return { "GD": totalPrice };
+};
