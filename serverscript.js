@@ -201,7 +201,7 @@ handlers.ClearLevel = function (args)
 {
     var townLevel = parseInt(args.TownLevel);
     var dungeonLevel = parseInt(args.DungeonLevel);
-    var townId = "Town_" + townLevel + "" + parseInt(dungeonLevel / 10);
+    var townId = "Town_" + townLevel + "" + parseInt(dungeonLevel / 20);
     log.info("townId " + townId);
     var items = [];
     var realItems = [];
