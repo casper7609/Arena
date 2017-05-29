@@ -49,19 +49,22 @@ handlers.PurchaseCharacter = function (args) {
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": characterId,
-        "Data": classStatus
+        "Data": classStatus,
+        "Permission": "Public"
     });
     var isActive = allChars.Characters.length <= 1;
     var isLeader = allChars.Characters.length == 0;
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": characterId,
-        "Data": { "Luck": luck, "IsActive": isActive, "IsLeader": isLeader, "Level": 0}
+        "Data": { "Luck": luck, "IsActive": isActive, "IsLeader": isLeader, "Level": 0 },
+        "Permission": "Public"
     });
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": characterId,
-        "Data": { "Rank": 0, "SoulHitPointLevel": 0 }
+        "Data": { "Rank": 0, "SoulHitPointLevel": 0 },
+        "Permission": "Public"
     });
     var itemId = "";
     if (classType == "Rogue") {
@@ -201,7 +204,7 @@ handlers.ClearLevel = function (args)
 {
     var townLevel = parseInt(args.TownLevel);
     var dungeonLevel = parseInt(args.DungeonLevel);
-    var townId = "Town_" + townLevel + "" + parseInt(dungeonLevel / 20);
+    var townId = "Town_" + townLevel + "" + parseInt(dungeonLevel / 30);
     log.info("townId " + townId);
     var items = [];
     var realItems = [];
@@ -503,11 +506,11 @@ handlers.CharLevelUp = function (args) {
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": args.CharacterId,
-        "Data": { "Level": args.Level}
+        "Data": { "Level": args.Level },
+        "Permission": "Public"
     });
     return {};
 };
-
 handlers.CharGradeUp = function (args) {
     log.info("GetEnergyPoint called PlayFabId " + currentPlayerId);
     var userInv = server.GetUserInventory({
@@ -542,7 +545,8 @@ handlers.CharGradeUp = function (args) {
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": args.CharacterId,
-        "Data": { "Rank": args.Rank }
+        "Data": { "Rank": args.Rank },
+        "Permission": "Public"
     });
     return {};
 };
@@ -603,4 +607,29 @@ handlers.DecomposeItems = function (args) {
         }
     );
     return { "GD": totalPrice };
+};
+handlers.EquipItem = function (args) {
+    var itemSwapInfos = JSON.parse(args.ItemSwapInfo);
+    for (var i = 0; i < itemSwapInfos.length; i++) {
+        var itemSwapInfo = itemSwapInfos[i];
+        //unequip
+        if (itemSwapInfo.PrevItemInstanceId != "") {
+            itemSwapInfo.PlayFabId = currentPlayerId;
+            itemSwapInfo.CharacterId = args.CharacterId;
+            handlers.UnEquipItem(itemSwapInfo);
+        }
+        //equip
+        server.MoveItemToCharacterFromUser({
+            "PlayFabId": currentPlayerId,
+            "CharacterId": args.CharacterId,
+            "ItemInstanceId": itemSwapInfo.ItemToEquipInstanceId
+        });
+    }
+};
+handlers.UnEquipItem = function (args) {
+    server.MoveItemToUserFromCharacter({
+        "PlayFabId": currentPlayerId,
+        "CharacterId": args.CharacterId,
+        "ItemInstanceId": args.PrevItemInstanceId
+    });
 };
