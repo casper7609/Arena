@@ -633,3 +633,9 @@ handlers.UnEquipItem = function (args) {
         "ItemInstanceId": args.PrevItemInstanceId
     });
 };
+handlers.PvPResult = function (args) {
+    log.info("PvPResult " + currentPlayerId);
+    var pvpResult = args.PvPResult;
+    log.info(pvpResult.When);
+
+};
