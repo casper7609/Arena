@@ -689,7 +689,8 @@ function mergeResult(playFabId, pvpResult)
     var results = [];
     if (userData.Data.PvPResults != null)
     {
-        results = JSON.parse(userData.Data.PvPResults.replace(/\\/g, ""));
+        log.info(userData.Data.PvPResults);
+        results = userData.Data.PvPResults;
     } 
     if (results.length >= 10)
     {
