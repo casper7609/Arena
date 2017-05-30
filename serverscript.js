@@ -643,6 +643,7 @@ handlers.PvPResult = function (args) {
     var enemyElo = 1 / (1 + Math.pow(10, (myScore - enemyScore) / 400));
     var myS = 0;
     var enemyS = 0;
+    var k = 10;
     if (pvpResult.Result == 0)
     {
         myS = 1;
@@ -657,13 +658,18 @@ handlers.PvPResult = function (args) {
         myS = 0.5;
         enemyS = 0.5;
     }
-    var myRC = myScore + 50 * (myS - myElo);
-    var enemyRC = enemyScore + 50 * (enemyS - enemyElo);
+    var myRC = Math.ceil(k * (myS - myElo));
+    var enemyRC = Math.ceil(k * (enemyS - enemyElo));
 
+    updateScore(currentPlayerId, myScore + myRC);
+    updateScore(pvpResult.Defender.PlayFabId, enemyScore + enemyRC);
     log.info("myElo " + myElo);
     log.info("enemyElo " + enemyElo);
     log.info("myRC " + myRC);
     log.info("enemyRC " + enemyRC);
+
+    pvpResult.Attacker.Diff = myRC;
+    pvpResult.Defender.Diff = enemyRC;
 
     var myData = server.GetUserData({
         "PlayFabId": currentPlayerId,
@@ -678,6 +684,41 @@ handlers.PvPResult = function (args) {
         ],
     });
 };
+function mergeResult(playFabId, pvpResult)
+{
+    var userData = server.GetUserData({
+        "PlayFabId": playFabId,
+        "Keys": [
+            "PvPResults",
+        ],
+    });
+    var results = [];
+    if (userData.Data.PvPResults != null) results = userData.Data.PvPResults;
+    if (results.length >= 10)
+    {
+        results.shift();
+    }
+    results.push(pvpResult);
+    var updatedUserData = server.UpdateUserData(
+       {
+           "PlayFabId": playFabId,
+           "Data": {
+               "PvPResults": results
+           },
+           "Permission": "Public"
+       });
+}
+function updateScore(playFabId, score) {
+    server.UpdatePlayerStatistics({
+        "PlayFabId": playFabId,
+        "Statistics": [
+            {
+                "StatisticName": "PvPRanking",
+                "Value": score
+            }
+        ],
+    });
+}
 function getScore(playFabId)
 {
     var myStat = server.GetPlayerStatistics({
