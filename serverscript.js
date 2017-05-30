@@ -636,9 +636,10 @@ handlers.UnEquipItem = function (args) {
 handlers.PvPResult = function (args) {
     log.info("PvPResult " + currentPlayerId);
     var pvpResult = args.PvPResult;
+    var enemyId = pvpResult.Defender.PlayFabId;
     log.info(pvpResult.When);
     var myScore = getScore(currentPlayerId);
-    var enemyScore = getScore(pvpResult.Defender.PlayFabId);
+    var enemyScore = getScore(enemyId);
     var myElo = 1 / (1 + Math.pow(10, (enemyScore - myScore) / 400));
     var enemyElo = 1 / (1 + Math.pow(10, (myScore - enemyScore) / 400));
     var myS = 0;
@@ -662,7 +663,7 @@ handlers.PvPResult = function (args) {
     var enemyRC = Math.ceil(k * (enemyS - enemyElo));
 
     updateScore(currentPlayerId, myScore + myRC);
-    updateScore(pvpResult.Defender.PlayFabId, enemyScore + enemyRC);
+    updateScore(enemyId, enemyScore + enemyRC);
     log.info("myElo " + myElo);
     log.info("enemyElo " + enemyElo);
     log.info("myRC " + myRC);
@@ -671,18 +672,8 @@ handlers.PvPResult = function (args) {
     pvpResult.Attacker.Diff = myRC;
     pvpResult.Defender.Diff = enemyRC;
 
-    var myData = server.GetUserData({
-        "PlayFabId": currentPlayerId,
-        "Keys": [
-            "PvPResults",
-        ],
-    });
-    var enemyData = server.GetUserData({
-        "PlayFabId": pvpResult.Defender.PlayFabId,
-        "Keys": [
-            "PvPResults",
-        ],
-    });
+    mergeResult(currentPlayerId, pvpResult);
+    mergeResult(enemyId, pvpResult);
 };
 function mergeResult(playFabId, pvpResult)
 {
@@ -699,14 +690,14 @@ function mergeResult(playFabId, pvpResult)
         results.shift();
     }
     results.push(pvpResult);
-    var updatedUserData = server.UpdateUserData(
-       {
-           "PlayFabId": playFabId,
-           "Data": {
-               "PvPResults": results
-           },
-           "Permission": "Public"
-       });
+    server.UpdateUserData(
+    {
+        "PlayFabId": playFabId,
+        "Data": {
+            "PvPResults": results
+        },
+        "Permission": "Public"
+    });
 }
 function updateScore(playFabId, score) {
     server.UpdatePlayerStatistics({
