@@ -674,6 +674,7 @@ handlers.PvPResult = function (args) {
 
     mergeResult(currentPlayerId, pvpResult);
     mergeResult(enemyId, pvpResult);
+    return { "MyRC": myRC, "EnemyRC": enemyRC };
 };
 function mergeResult(playFabId, pvpResult)
 {
