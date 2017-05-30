@@ -43,27 +43,12 @@ handlers.PurchaseCharacter = function (args) {
     });
     var characterId = grantCharResult.CharacterId;
     log.info("characterId " + characterId);
-    var classStatus = JSON.parse(args.ClassStatus);
-    var luck = classStatus["Luck"];
-    delete classStatus.Luck;
-    server.UpdateCharacterData({
-        "PlayFabId": currentPlayerId,
-        "CharacterId": characterId,
-        "Data": classStatus,
-        "Permission": "Public"
-    });
     var isActive = allChars.Characters.length <= 1;
     var isLeader = allChars.Characters.length == 0;
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": characterId,
-        "Data": { "Luck": luck, "IsActive": isActive, "IsLeader": isLeader, "Level": 0 },
-        "Permission": "Public"
-    });
-    server.UpdateCharacterData({
-        "PlayFabId": currentPlayerId,
-        "CharacterId": characterId,
-        "Data": { "Rank": 0, "SoulHitPointLevel": 0 },
+        "Data": { "ClassStatus": args.ClassStatus, "IsLeader": isLeader, "Level": 0, "Rank": 0 },
         "Permission": "Public"
     });
     var itemId = "";
