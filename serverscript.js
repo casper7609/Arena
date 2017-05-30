@@ -689,7 +689,7 @@ function mergeResult(playFabId, pvpResult)
     var results = [];
     if (userData.Data.PvPResults != null)
     {
-        results = JSON.parse(tuserData.Data.PvPResults.replace(/\\/g, ""));
+        results = JSON.parse(userData.Data.PvPResults.replace(/\\/g, ""));
     } 
     if (results.length >= 10)
     {
