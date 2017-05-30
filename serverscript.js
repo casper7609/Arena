@@ -669,12 +669,14 @@ handlers.PvPResult = function (args) {
     log.info("myRC " + myRC);
     log.info("enemyRC " + enemyRC);
 
+    pvpResult.Attacker.Score = myScore;
     pvpResult.Attacker.Diff = myRC;
+    pvpResult.Defender.Score = enemyScore;
     pvpResult.Defender.Diff = enemyRC;
 
     mergeResult(currentPlayerId, pvpResult);
     mergeResult(enemyId, pvpResult);
-    return { "MyRC": myRC, "EnemyRC": enemyRC };
+    return { "MyScore" : myScore, "MyRC": myRC, "EnemyScore" : enemyScore, "EnemyRC": enemyRC };
 };
 function mergeResult(playFabId, pvpResult)
 {
