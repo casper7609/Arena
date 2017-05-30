@@ -684,7 +684,10 @@ function mergeResult(playFabId, pvpResult)
         ],
     });
     var results = [];
-    if (userData.Data.PvPResults != null) results = userData.Data.PvPResults;
+    if (userData.Data.PvPResults != null)
+    {
+        results = JSON.parse(tuserData.Data.PvPResults.replace(/\\/g, ""));
+    } 
     if (results.length >= 10)
     {
         results.shift();
@@ -694,7 +697,7 @@ function mergeResult(playFabId, pvpResult)
     {
         "PlayFabId": playFabId,
         "Data": {
-            "PvPResults": results
+            "PvPResults": JSON.stringify(results)
         },
         "Permission": "Public"
     });
