@@ -637,5 +637,54 @@ handlers.PvPResult = function (args) {
     log.info("PvPResult " + currentPlayerId);
     var pvpResult = args.PvPResult;
     log.info(pvpResult.When);
+    var myScore = getScore(currentPlayerId);
+    var enemyScore = getScore(pvpResult.Defender.PlayFabId);
+    var myElo = 1 / (1 + Math.pow(10, (enemyScore - myScore) / 400));
+    var enemyElo = 1 / (1 + Math.pow(10, (myScore - enemyScore) / 400));
+    var myS = 0;
+    var enemyS = 0;
+    if (pvpResult.Result == 0)
+    {
+        myS = 1;
+        enemyS = 0;
+    }
+    else if (pvpResult.Result == 1) {
+        myS = 0;
+        enemyS = 1;
+    }
+    else
+    {
+        myS = 0.5;
+        enemyS = 0.5;
+    }
+    var myRC = myScore + 50 * (myS - myElo);
+    var enemyRC = enemyScore + 50 * (enemyS - enemyElo);
 
+    log.info("myElo " + myElo);
+    log.info("enemyElo " + enemyElo);
+    log.info("myRC " + myRC);
+    log.info("enemyRC " + enemyRC);
+
+    var myData = server.GetUserData({
+        "PlayFabId": currentPlayerId,
+        "Keys": [
+            "PvPResults",
+        ],
+    });
+    var enemyData = server.GetUserData({
+        "PlayFabId": pvpResult.Defender.PlayFabId,
+        "Keys": [
+            "PvPResults",
+        ],
+    });
 };
+function getScore(playFabId)
+{
+    var myStat = server.GetPlayerStatistics({
+        "PlayFabId": playFabId,
+        "StatisticNames": [
+            "PvPRanking",
+        ],
+    });
+    return parseInt(myStat.Statistics[0].Value);
+}
