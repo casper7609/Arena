@@ -48,7 +48,7 @@ handlers.PurchaseCharacter = function (args) {
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": characterId,
-        "Data": { "ClassStatus": args.ClassStatus, "IsLeader": isLeader, "Level": 0, "Rank": 0 },
+        "Data": { "ClassStatus": args.ClassStatus, "IsLeader": isLeader, "Level": 0, "Rank": 0, "ClassType": args.ClassType },
         "Permission": "Public"
     });
     var itemId = "";
