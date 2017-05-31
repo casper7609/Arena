@@ -48,7 +48,7 @@ handlers.PurchaseCharacter = function (args) {
     server.UpdateCharacterData({
         "PlayFabId": currentPlayerId,
         "CharacterId": characterId,
-        "Data": { "ClassStatus": args.ClassStatus, "IsLeader": isLeader, "Level": 0, "Rank": 0, "ClassType": args.ClassType },
+        "Data": { "ClassStatus": args.ClassStatus, "IsLeader": isLeader, "Level": 0, "Rank": 0 },
         "Permission": "Public"
     });
     var itemId = "";
@@ -625,15 +625,17 @@ handlers.GetPvPEnemyInfo = function (args) {
     var userData = server.GetUserData({
         "PlayFabId": targetId,
         "Keys": [
+            "UserName",
             "RecentPvPDeck",
         ],
     });
     var charIdList = JSON.parse(userData.Data.RecentPvPDeck.Value.replace(/\\/g, ""));
+    var userName = userData.Data.UserName.Value;
     var result = [];
     for (var i = 0; i < 3; i++)
     {
         var charId = charIdList[i];
-        result.push({ "CharacterId": charId, "CharData": getCharData(targetId, charId), "CharInventory": getCharInventory(targetId, charId) });
+        result.push({ "CharacterId": charId, "UserName": userName, "CharData": getCharData(targetId, charId), "CharInventory": getCharInventory(targetId, charId) });
     }
     return result;
 };
@@ -647,7 +649,7 @@ function getCharData(playFabId, charId)
 }
 function getCharInventory(playFabId, charId)
 {
-    var charInv = server.GetCharacterData({
+    var charInv = server.GetCharacterInventory({
         "PlayFabId": playFabId,
         "CharacterId": charId,
     });
