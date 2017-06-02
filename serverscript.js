@@ -696,16 +696,17 @@ handlers.PvPResult = function (args) {
     pvpResult.Defender.Score = enemyScore;
     pvpResult.Defender.Diff = enemyRC;
 
-    mergeResult(currentPlayerId, pvpResult);
-    mergeResult(enemyId, pvpResult);
+    mergeResult(currentPlayerId, pvpResult, myS);
+    mergeResult(enemyId, pvpResult, enemyS);
     return { "MyScore" : myScore, "MyRC": myRC, "EnemyScore" : enemyScore, "EnemyRC": enemyRC };
 };
-function mergeResult(playFabId, pvpResult)
+function mergeResult(playFabId, pvpResult, winResult)
 {
     var userData = server.GetUserData({
         "PlayFabId": playFabId,
         "Keys": [
             "PvPResults",
+            "WinRatio"
         ],
     });
     var results = [];
@@ -718,11 +719,28 @@ function mergeResult(playFabId, pvpResult)
         results.shift();
     }
     results.push(pvpResult);
+
+    var winRatio = {"Win":0,"Lose":0,"Draw":0};
+    if (userData.Data.WinRatio != null) {
+        winRatio = JSON.parse(userData.Data.WinRatio.Value.replace(/\\/g, ""));
+    }
+    if (winResult == 1)
+    {
+        winRatio.Win++;
+    }
+    else if (winResult == 0) {
+        winRatio.Lose++;
+    }
+    else if (winResult == 0.5) {
+        winRatio.Draw++;
+    }
+
     server.UpdateUserData(
     {
         "PlayFabId": playFabId,
         "Data": {
-            "PvPResults": JSON.stringify(results)
+            "PvPResults": JSON.stringify(results),
+            "WinRatio": JSON.stringify(winRatio)
         },
         "Permission": "Public"
     });
@@ -748,3 +766,13 @@ function getScore(playFabId)
     });
     return parseInt(myStat.Statistics[0].Value);
 }
+
+handlers.MassiveSoul = function (args) {
+    server.AddUserVirtualCurrency(
+        {
+            "PlayFabId": currentPlayerId,
+            "VirtualCurrency": "AP",
+            "Amount": 15
+        }
+    );
+};
