@@ -777,10 +777,42 @@ handlers.MassiveSoul = function (args) {
 };
 
 handlers.ClearAllUserData = function (args) {
-    server.DeleteUsers(
+    var allChars = server.GetAllUsersCharacters({
+        "PlayFabId": currentPlayerId
+    });
+    for (var i = 0; i < allChars.Characters.length; i++)
+    {
+        var charId = allChars.Characters[i].CharacterId;
+        server.DeleteCharacterFromUser({
+            "PlayFabId": currentPlayerId,
+            "CharacterId": charId,
+            "SaveCharacterInventory": false
+        });
+    }
+    var userData = server.GetUserData(
         {
-            "PlayFabIds": [currentPlayerId],
-            "TitleId": "78BF"
+            "PlayFabId": currentPlayerId
         }
     );
+    var keys = [];
+    for (var property in userData) {
+        if (userData.hasOwnProperty(property)) {
+            keys.push(property);
+        }
+    }
+    server.UpdateUserData(
+    {
+        "PlayFabId": currentPlayerId,
+        "KeysToRemove": keys
+    });
+    server.UpdatePlayerStatistics(
+    {
+        "PlayFabId": currentPlayerId,
+        "Statistics": [
+            {
+                "StatisticName": "PvPRanking",
+                "Value": -1
+            }
+        ]
+    });
 };
