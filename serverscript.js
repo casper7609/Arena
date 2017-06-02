@@ -779,7 +779,7 @@ handlers.MassiveSoul = function (args) {
 handlers.ClearAllUserData = function (args) {
     server.DeleteUsers(
         {
-            "PlayFabId": [currentPlayerId],
+            "PlayFabIds": [currentPlayerId],
             "TitleId": "78BF"
         }
     );
