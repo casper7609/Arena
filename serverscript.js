@@ -770,12 +770,11 @@ handlers.MassiveSoul = function (args) {
     server.AddUserVirtualCurrency(
         {
             "PlayFabId": currentPlayerId,
-            "VirtualCurrency": "AP",
+            "VirtualCurrency": "AE",
             "Amount": 15
         }
     );
 };
-
 handlers.ClearAllUserData = function (args) {
     var allChars = server.GetAllUsersCharacters({
         "PlayFabId": currentPlayerId
