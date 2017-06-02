@@ -795,8 +795,8 @@ handlers.ClearAllUserData = function (args) {
         }
     );
     var keys = [];
-    for (var property in userData) {
-        if (userData.hasOwnProperty(property)) {
+    for (var property in userData.Data) {
+        if (userData.Data.hasOwnProperty(property)) {
             keys.push(property);
         }
     }
