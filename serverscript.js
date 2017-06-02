@@ -766,13 +766,21 @@ function getScore(playFabId)
     });
     return parseInt(myStat.Statistics[0].Value);
 }
-
 handlers.MassiveSoul = function (args) {
     server.AddUserVirtualCurrency(
         {
             "PlayFabId": currentPlayerId,
             "VirtualCurrency": "AP",
             "Amount": 15
+        }
+    );
+};
+
+handlers.ClearAllUserData = function (args) {
+    server.DeleteUsers(
+        {
+            "PlayFabId": [currentPlayerId],
+            "TitleId": "78BF"
         }
     );
 };
