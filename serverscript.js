@@ -815,3 +815,21 @@ handlers.ClearAllUserData = function (args) {
         ]
     });
 };
+handlers.MapQuestReward = function (args) {
+    var itemGrantResult = server.GrantItemsToUser(
+        {
+            "CatalogVersion": catalogVersion,
+            "PlayFabId": currentPlayerId,
+            "ItemIds": [args.ContainerId]
+        }
+    );
+    var grantedItems = itemGrantResult["ItemGrantResults"];
+    server.UnlockContainerInstance(
+        {
+            "CatalogVersion": catalogVersion,
+            "PlayFabId": currentPlayerId,
+            "ContainerItemInstanceId": grantedItems[0].ItemInstanceId
+        }
+    );
+    return {};
+};
