@@ -2,7 +2,7 @@ var catalogVersion = "0.9";
 var LVL_UP_PAC = "LVL_UP_PAC";
 var MON_SUB_PAC = "MON_SUB_PAC";
 var UserInventoryMax = 20;
-var enchantPriceInIP = 10;
+var enchantPriceInGD = 10;
 function rand(from, to) {
     return Math.floor((Math.random() * to) + from);
 }
@@ -593,6 +593,111 @@ handlers.DecomposeItems = function (args) {
     );
     return { "GD": totalPrice };
 };
+handlers.UpgradeItem = function (args) {
+
+    var itemToUpgrade = JSON.parse(args.ItemInstance);
+    var str = itemToUpgrade.ItemId;
+    var rank = str.substring(str.lastIndexOf("_") + 1, str.lastIndexOf("_") + 2);
+    rank = parseInt(rank);
+    rank++;
+    var RPToEnchant = Math.floor(enchantPriceInGD * Math.pow(1.4, rank));
+
+    var newItemId = str.substr(0, str.lastIndexOf("_")) + "_" + rank + str.substr(str.lastIndexOf("_") + 2);
+    var mainFeature = itemToUpgrade.CustomData.Main;
+    var userInventory = server.GetUserInventory({
+        "PlayFabId": currentPlayerId
+    });
+
+    //check if sufficient fund
+    if (userInventory.VirtualCurrency == null
+        || userInventory.VirtualCurrency.RP == null
+        || parseInt(userInventory.VirtualCurrency.RP) < RPToEnchant) {
+        log.info("Insufficient Fund");
+        return { "Error": "Insufficient Fund" };
+    }
+    server.SubtractUserVirtualCurrency({
+        "PlayFabId": currentPlayerId,
+        "VirtualCurrency": "RP",
+        "Amount": RPToEnchant
+    });
+    var characterId = args.CharacterId;
+    var itemGrantResult = null;
+    log.info("newItemId " + newItemId);
+    var newItem = null;
+    if (characterId == null || characterId == "") {
+        server.RevokeInventoryItem({
+            "PlayFabId": currentPlayerId,
+            "ItemInstanceId": itemToUpgrade.ItemInstanceId,
+        });
+        itemGrantResult = server.GrantItemsToUser({
+            CatalogVersion: catalogVersion,
+            PlayFabId: currentPlayerId,
+            Annotation: "ItemUpgrade",
+            ItemIds: [newItemId]
+        });
+        var grantedItems = itemGrantResult["ItemGrantResults"];
+        for (var i = 0; i < grantedItems.length; i++) {
+            newItem = updateItemData(grantedItems[i], null, mainFeature);
+        }
+    }
+    else {
+        server.RevokeInventoryItem({
+            "PlayFabId": currentPlayerId,
+            "CharacterId": characterId,
+            "ItemInstanceId": itemToUpgrade.ItemInstanceId,
+        });
+        itemGrantResult = server.GrantItemsToCharacter({
+            CatalogVersion: catalogVersion,
+            CharacterId: characterId,
+            PlayFabId: currentPlayerId,
+            Annotation: "ItemUpgrade",
+            ItemIds: [newItemId]
+        });
+        var grantedItems = itemGrantResult["ItemGrantResults"];
+        for (var i = 0; i < grantedItems.length; i++) {
+            newItem = updateItemData(grantedItems[i], characterId, mainFeature);
+        }
+    }
+    log.info("itemGrantResults " + JSON.stringify(newItem));
+
+    return { "NewItem": JSON.stringify(newItem) };
+};
+handlers.EnchantItem = function (args) {
+    var characterId = args.CharacterId;
+    var itemToEnchant = JSON.parse(args.ItemInstance);
+    var enchantLevel = 0;
+
+    if (itemToEnchant.CustomData != null && itemToEnchant.CustomData.Enchant != null) {
+        enchantLevel = parseInt(itemToEnchant.CustomData.Enchant);
+    }
+    //0~4, 5~9, 
+    var GDToEnchant = Math.floor(enchantPriceInGD * Math.pow(1.4, enchantLevel));
+
+    var userInventory = server.GetUserInventory({
+        "PlayFabId": currentPlayerId
+    });
+
+    //check if sufficient fund
+    if (userInventory.VirtualCurrency == null
+        || userInventory.VirtualCurrency.GD == null
+        || parseInt(userInventory.VirtualCurrency.GD) < GDToEnchant) {
+        log.info("Insufficient Fund");
+        return { "Error": "Insufficient Fund" };
+    }
+    server.SubtractUserVirtualCurrency({
+        "PlayFabId": currentPlayerId,
+        "VirtualCurrency": "GD",
+        "Amount": GDToEnchant
+    });
+    enchantLevel++;
+    var enchantSuccessResult = server.UpdateUserInventoryItemCustomData({
+        PlayFabId: currentPlayerId,
+        CharacterId: characterId,
+        ItemInstanceId: itemToEnchant.ItemInstanceId,
+        Data: { "Enchant": enchantLevel },
+    });
+    return {};
+};
 handlers.EquipItem = function (args) {
     var itemSwapInfos = JSON.parse(args.ItemSwapInfo);
     for (var i = 0; i < itemSwapInfos.length; i++) {
@@ -771,7 +876,7 @@ handlers.MassiveSoul = function (args) {
         {
             "PlayFabId": currentPlayerId,
             "VirtualCurrency": "AE",
-            "Amount": 15
+            "Amount": 6
         }
     );
 };
