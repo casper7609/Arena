@@ -351,23 +351,8 @@ handlers.GetEnergyPoint = function (args) {
     var userInv = server.GetUserInventory({
         "PlayFabId": currentPlayerId
     });
-    var userLevel = 0;
-    if (userData.Data.UserLevel == null) {
-        log.info("Need to add UserLevel");
-        var updatedUserData = server.UpdateUserData(
-        {
-            "PlayFabId": currentPlayerId,
-            "Data": {
-                "UserLevel": 0
-            }
-        });
-        log.info("UpdateResult " + JSON.stringify(updatedUserData));
-        userLevel = 0;
-    }
-    else {
-        userLevel = parseInt(userData.Data.UserLevel.Value);
-        log.info("userLevel " + userLevel);
-    }
+    var userLevel = getUserLevel(userData);
+    
 
     var baseEnergy = userInv.VirtualCurrency.BE;
     var baseEnergyMax = 56;
@@ -469,6 +454,83 @@ handlers.GetEnergyPoint = function (args) {
 
     return { Current: (additionalEnergy + baseEnergy), Max: (baseEnergyMax + additionalEnergyMax), TimeSecondsLeftTillNextGen: timeSecondsLeftTillNextGen };
 };
+handlers.MaxEnergyPoint = function (args) {
+    log.info("MaxEnergyPoint called PlayFabId " + currentPlayerId);
+    var userData = server.GetUserData(
+        {
+            "PlayFabId": currentPlayerId,
+            "Keys": [
+                "UserLevel"
+            ],
+        }
+    );
+    var userInv = server.GetUserInventory({
+        "PlayFabId": currentPlayerId
+    });
+    var userLevel = getUserLevel(userData);
+
+    var baseEnergy = userInv.VirtualCurrency.BE;
+    var baseEnergyMax = 56;
+    var additionalEnergy = userInv.VirtualCurrency.AE;
+    var additionalEnergyMax = userLevel * 2;
+    log.info("baseEnergy " + baseEnergy);
+    log.info("baseEnergyMax " + baseEnergyMax);
+    log.info("additionalEnergy " + additionalEnergy);
+    log.info("additionalEnergyMax " + additionalEnergyMax);
+
+    var baseEnergyToFill = baseEnergyMax - baseEnergy;
+    if (baseEnergyToFill > 0)
+    {
+        server.AddUserVirtualCurrency(
+            {
+                "PlayFabId": currentPlayerId,
+                "VirtualCurrency": "BE",
+                "Amount": baseEnergyToFill
+            }
+        );
+    }
+    var additionalEnergyToFill = additionalEnergyMax - additionalEnergy;
+    if (additionalEnergyToFill > 0) {
+        server.AddUserVirtualCurrency(
+            {
+                "PlayFabId": currentPlayerId,
+                "VirtualCurrency": "AE",
+                "Amount": additionalEnergyToFill
+            }
+        );
+    }
+
+    return { Current: (Math.max(additionalEnergy, additionalEnergyMax) + Math.max(baseEnergy, baseEnergyMax)), Max: (baseEnergyMax + additionalEnergyMax) };
+};
+function getUserLevel(userData)
+{
+    var userExp = 0;
+    if (userData.Data.UserLevel == null) {
+        log.info("Need to add UserLevel");
+        var updatedUserData = server.UpdateUserData(
+        {
+            "PlayFabId": currentPlayerId,
+            "Data": {
+                "UserLevel": 0
+            }
+        });
+        log.info("UpdateResult " + JSON.stringify(updatedUserData));
+        userExp = 0;
+    }
+    else {
+        userExp = parseInt(userData.Data.UserLevel.Value);
+        log.info("userExp " + userExp);
+    }
+    var userLevel = 1;
+    var xpToNextLevel = Math.ceil(100 * Math.pow(1.2, userLevel));
+    while (userExp > xpToNextLevel)
+    {
+        userLevel++;
+        userExp -= xpToNextLevel;
+        xpToNextLevel = Math.ceil(100 * Math.pow(1.2, userLevel));
+    }
+    return userLevel;
+}
 handlers.CharLevelUp = function (args) {
     log.info("GetEnergyPoint called PlayFabId " + currentPlayerId);
     var userInv = server.GetUserInventory({
