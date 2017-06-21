@@ -456,23 +456,16 @@ handlers.GetEnergyPoint = function (args) {
 };
 handlers.MaxEnergyPoint = function (args) {
     log.info("MaxEnergyPoint called PlayFabId " + currentPlayerId);
-    var userData = server.GetUserData(
-        {
-            "PlayFabId": currentPlayerId,
-            "Keys": [
-                "UserLevel"
-            ],
-        }
-    );
     var userInv = server.GetUserInventory({
         "PlayFabId": currentPlayerId
     });
-    var userLevel = getUserLevel(userData);
+    var userLevel = args.UserLevel;
 
     var baseEnergy = userInv.VirtualCurrency.BE;
     var baseEnergyMax = 56;
     var additionalEnergy = userInv.VirtualCurrency.AE;
     var additionalEnergyMax = userLevel * 2;
+    log.info("userLevel " + userLevel);
     log.info("baseEnergy " + baseEnergy);
     log.info("baseEnergyMax " + baseEnergyMax);
     log.info("additionalEnergy " + additionalEnergy);
