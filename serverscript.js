@@ -86,12 +86,12 @@ function updateItemData(item, characterId, mainFeature) {
     var str = item.ItemId;
     var rank = str.substring(str.lastIndexOf("_") + 1, str.lastIndexOf("_") + 2);
     rank = parseInt(rank);
-    var chance = Math.min((rank + 1), 4);
+    var chance = 1;
     //var newItemId = str.substr(0, str.lastIndexOf("_")) + "_" + rank + str.substr(str.lastIndexOf("_") + 2);
-    var weaponMainOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "CriticalChance", "CriticalDamage", "SoulGain"];
-    var armorMainOptions = ["MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint", "SoulGain"];
-    var accessoryMainOptions = ["AttackPower", "ArmorClass", "MagicResistance", "CriticalChance", "CriticalDamage", "SoulGain"];
-    var commonOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint", "CriticalChance", "CriticalDamage", "SoulGain"];
+    var weaponMainOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "CriticalChance", "CriticalDamage"];
+    var armorMainOptions = ["MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint"];
+    var accessoryMainOptions = ["AttackPower", "ArmorClass", "MagicResistance", "CriticalChance", "CriticalDamage"];
+    var commonOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint", "CriticalChance", "CriticalDamage"];
     var fArray = [];
     var customData = { "Enchant": "0" };
     fArray.push({ "Key": "Enchant", "Value": "0" });
@@ -104,13 +104,13 @@ function updateItemData(item, characterId, mainFeature) {
                 }
                 customData["Main"] = picked;
                 fArray.push({ "Key": "Main", "Value": picked });
-                customData[picked] = rand(100, (rank + 1) * 100).toString();
+                customData[picked] = rand((rank + 1) * 100, (rank + 1) * 100).toString();
                 fArray.push({ "Key": picked, "Value": customData[picked] });
             }
-            else {
-                customData[picked] = rand(100, (rank) * 100).toString();
-                fArray.push({ "Key": picked, "Value": customData[picked] });
-            }
+            //else {
+            //    customData[picked] = rand(100, (rank) * 100).toString();
+            //    fArray.push({ "Key": picked, "Value": customData[picked] });
+            //}
             weaponMainOptions.splice(weaponMainOptions.indexOf(picked), 1);
         }
         else if (item.ItemClass == "Armor") {
@@ -121,13 +121,13 @@ function updateItemData(item, characterId, mainFeature) {
                 }
                 customData["Main"] = picked;
                 fArray.push({ "Key": "Main", "Value": picked });
-                customData[picked] = rand(100, (rank + 1) * 100).toString();
+                customData[picked] = rand((rank + 1) * 100, (rank + 1) * 100).toString();
                 fArray.push({ "Key": picked, "Value": customData[picked] });
             }
-            else {
-                customData[picked] = rand(100, (rank) * 100).toString();
-                fArray.push({ "Key": picked, "Value": customData[picked] });
-            }
+            //else {
+            //    customData[picked] = rand(100, (rank) * 100).toString();
+            //    fArray.push({ "Key": picked, "Value": customData[picked] });
+            //}
 
             armorMainOptions.splice(armorMainOptions.indexOf(picked), 1);
         }
@@ -140,14 +140,14 @@ function updateItemData(item, characterId, mainFeature) {
                 picked = accessoryMainOptions[Math.floor(Math.random() * accessoryMainOptions.length)];
                 customData["Main"] = picked;
                 fArray.push({ "Key": "Main", "Value": picked });
-                customData[picked] = rand(100, (rank + 1) * 100).toString();
+                customData[picked] = rand((rank + 1) * 100, (rank + 1) * 100).toString();
                 fArray.push({ "Key": picked, "Value": customData[picked] });
             }
-            else {
-                picked = commonOptions[Math.floor(Math.random() * commonOptions.length)];
-                customData[picked] = rand(100, (rank) * 100).toString();
-                fArray.push({ "Key": picked, "Value": customData[picked] });
-            }
+            //else {
+            //    picked = commonOptions[Math.floor(Math.random() * commonOptions.length)];
+            //    customData[picked] = rand(100, (rank) * 100).toString();
+            //    fArray.push({ "Key": picked, "Value": customData[picked] });
+            //}
 
             accessoryMainOptions.splice(accessoryMainOptions.indexOf(picked), 1);
             commonOptions.splice(commonOptions.indexOf(picked), 1);
@@ -193,6 +193,23 @@ handlers.ClearLevel = function (args)
     log.info("townId " + townId);
     var items = [];
     var realItems = [];
+
+    var userInventory = server.GetUserInventory({
+        "PlayFabId": currentPlayerId
+    });
+    var invMax = UserInventoryMax;
+    var userData = server.GetUserData(
+        {
+            "PlayFabId": currentPlayerId,
+            "Keys": [
+                "UserInventoryMax"
+            ]
+        }
+    );
+    if (userData.UserInventoryMax && userData.UserInventoryMax.Value) {
+        invMax = (userData.UserInventoryMax.Value);
+    }
+
     for(var i = 0; i < 5; i++)
     {
         var townItem = server.EvaluateRandomResultTable(
@@ -204,7 +221,17 @@ handlers.ClearLevel = function (args)
         );
         if (townItem.ResultItemId != "Nothing") {
             log.info("item " + JSON.stringify(townItem));
-            items.push(townItem.ResultItemId);
+            if (userInventory.Inventory.length >= invMax)
+            {
+                var str = townItem.ResultItemId;
+                if (str.includes("GarbageItem") || str.includes("Bundle")) {
+                    items.push(townItem.ResultItemId);
+                }
+            }
+            else
+            {
+                items.push(townItem.ResultItemId);
+            }
         }
     }
     if (items.length > 0) {
