@@ -88,10 +88,10 @@ function updateItemData(item, characterId, mainFeature) {
     rank = parseInt(rank);
     var chance = 1;
     //var newItemId = str.substr(0, str.lastIndexOf("_")) + "_" + rank + str.substr(str.lastIndexOf("_") + 2);
-    var weaponMainOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "CriticalChance", "CriticalDamage"];
-    var armorMainOptions = ["MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint"];
-    var accessoryMainOptions = ["AttackPower", "ArmorClass", "MagicResistance", "CriticalChance", "CriticalDamage"];
-    var commonOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint", "CriticalChance", "CriticalDamage"];
+    var weaponMainOptions = ["AttackPower", "AttackSpeed", "CriticalChance", "CriticalDamage"];
+    var armorMainOptions = ["MoveSpeed", "ArmorClass", "MagicResistance", "CoolTimeReduction", "ResourceGen"];
+    var accessoryMainOptions = ["HitPoint", "AttackPower", "AttackSpeed", "CriticalChance", "CriticalDamage"];
+    ///var commonOptions = ["AttackPower", "CoolTimeReduction", "AttackSpeed", "MoveSpeed", "ArmorClass", "MagicResistance", "HitPoint", "CriticalChance", "CriticalDamage"];
     var fArray = [];
     var customData = { "Enchant": "0" };
     fArray.push({ "Key": "Enchant", "Value": "0" });
@@ -111,7 +111,7 @@ function updateItemData(item, characterId, mainFeature) {
             //    customData[picked] = rand(100, (rank) * 100).toString();
             //    fArray.push({ "Key": picked, "Value": customData[picked] });
             //}
-            weaponMainOptions.splice(weaponMainOptions.indexOf(picked), 1);
+            //weaponMainOptions.splice(weaponMainOptions.indexOf(picked), 1);
         }
         else if (item.ItemClass == "Armor") {
             var picked = armorMainOptions[Math.floor(Math.random() * armorMainOptions.length)];
@@ -129,7 +129,7 @@ function updateItemData(item, characterId, mainFeature) {
             //    fArray.push({ "Key": picked, "Value": customData[picked] });
             //}
 
-            armorMainOptions.splice(armorMainOptions.indexOf(picked), 1);
+            //armorMainOptions.splice(armorMainOptions.indexOf(picked), 1);
         }
         else {
             var picked = "";
@@ -149,8 +149,8 @@ function updateItemData(item, characterId, mainFeature) {
             //    fArray.push({ "Key": picked, "Value": customData[picked] });
             //}
 
-            accessoryMainOptions.splice(accessoryMainOptions.indexOf(picked), 1);
-            commonOptions.splice(commonOptions.indexOf(picked), 1);
+            //accessoryMainOptions.splice(accessoryMainOptions.indexOf(picked), 1);
+            //commonOptions.splice(commonOptions.indexOf(picked), 1);
         }
     }
     var cData = {};
