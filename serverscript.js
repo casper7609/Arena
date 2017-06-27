@@ -771,6 +771,16 @@ handlers.EnchantItem = function (args) {
         "VirtualCurrency": "GD",
         "Amount": GDToEnchant
     });
+
+    var items = JSON.parse(args.Items);
+    for (var i = 0; i < items.length; i++) {
+        var itemInstance = items[i];
+        server.RevokeInventoryItem({
+            "PlayFabId": currentPlayerId,
+            "ItemInstanceId": itemInstance.ItemInstanceId,
+        });
+    }
+
     enchantLevel++;
     var enchantSuccessResult = server.UpdateUserInventoryItemCustomData({
         PlayFabId: currentPlayerId,
