@@ -682,7 +682,7 @@ handlers.UpgradeItem = function (args) {
     var rank = str.substring(str.lastIndexOf("_") + 1, str.lastIndexOf("_") + 2);
     rank = parseInt(rank);
     rank++;
-    var RPToEnchant = Math.floor(enchantPriceInGD * Math.pow(1.4, rank));
+    var GDToEnchant = Math.floor(enchantPriceInGD * Math.pow(1.4, rank));
 
     var newItemId = str.substr(0, str.lastIndexOf("_")) + "_" + rank + str.substr(str.lastIndexOf("_") + 2);
     var mainFeature = itemToUpgrade.CustomData.Main;
@@ -692,16 +692,22 @@ handlers.UpgradeItem = function (args) {
 
     //check if sufficient fund
     if (userInventory.VirtualCurrency == null
-        || userInventory.VirtualCurrency.RP == null
-        || parseInt(userInventory.VirtualCurrency.RP) < RPToEnchant) {
+        || userInventory.VirtualCurrency.GD == null
+        || parseInt(userInventory.VirtualCurrency.GD) < GDToEnchant) {
         log.info("Insufficient Fund");
         return { "Error": "Insufficient Fund" };
     }
     server.SubtractUserVirtualCurrency({
         "PlayFabId": currentPlayerId,
-        "VirtualCurrency": "RP",
-        "Amount": RPToEnchant
+        "VirtualCurrency": "GD",
+        "Amount": GDToEnchant
     });
+
+    server.RevokeInventoryItem({
+        "PlayFabId": currentPlayerId,
+        "ItemInstanceId": args.ItemInstanceId,
+    });
+
     var characterId = args.CharacterId;
     var itemGrantResult = null;
     log.info("newItemId " + newItemId);
