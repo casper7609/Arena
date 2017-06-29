@@ -1036,3 +1036,6 @@ handlers.MapQuestReward = function (args) {
     );
     return {};
 };
+handlers.GetServerTime = function (args) {
+    return { "Time": new Date().getTime() };
+};
