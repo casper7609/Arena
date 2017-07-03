@@ -974,7 +974,7 @@ handlers.MassiveSoul = function (args) {
         {
             "PlayFabId": currentPlayerId,
             "VirtualCurrency": "AE",
-            "Amount": 6
+            "Amount": 15
         }
     );
 };
@@ -1038,13 +1038,4 @@ handlers.MapQuestReward = function (args) {
 };
 handlers.GetServerTime = function (args) {
     return { "Time": new Date().getTime() };
-};
-handlers.GetWeeklyRatingRewards = function (args) {
-    var dropTable = server.GetRandomResultTables(
-        {
-            "CatalogVersion": catalogVersion,
-            "TableIDs": JSON.parse(args.WeeklyRatingRewardIds)
-        }
-    );
-    return dropTable;
 };
