@@ -821,6 +821,7 @@ handlers.UnEquipItem = function (args) {
         "ItemInstanceId": args.PrevItemInstanceId
     });
 };
+
 handlers.GetPvPEnemyInfo = function (args) {
     log.info("PvPResult " + currentPlayerId);
     var targetId = args.PlayFabId;
@@ -969,15 +970,119 @@ function getScore(playFabId)
     });
     return parseInt(myStat.Statistics[0].Value);
 }
-handlers.MassiveSoul = function (args) {
+handlers.PurchaseGoods = function (args) {
+    var product = args.Product;
+    var amount = args.Amount;
+    var withCur = args.With;
+    var price = args.Price;
+
+    if (withCur != null && price != null)
+    {
+        var userInventory = server.GetUserInventory({
+            "PlayFabId": currentPlayerId
+        });
+
+        //check if sufficient fund
+        if (userInventory.VirtualCurrency == null
+            || userInventory.VirtualCurrency[withCur] == null
+            || parseInt(userInventory.VirtualCurrency[withCur]) < price) {
+            log.info("Insufficient Fund");
+            return { "Error": "Insufficient Fund" };
+        }
+        server.SubtractUserVirtualCurrency({
+            "PlayFabId": currentPlayerId,
+            "VirtualCurrency": withCur,
+            "Amount": price
+        });
+    }
+   
     server.AddUserVirtualCurrency(
         {
             "PlayFabId": currentPlayerId,
-            "VirtualCurrency": "AE",
-            "Amount": 15
+            "VirtualCurrency": product,
+            "Amount": amount
         }
     );
 };
+handlers.SummonItem = function (args) {
+    log.info("PlayFabId " + args.PlayFabId);
+
+    var count = args.Count;
+    var gemPrice = count == 11 ? 3000 : 300;
+    var dropTableId = "Gotcha" + args.DropTableId;
+
+    log.info("gemPrice " + gemPrice);
+
+    var userInv = server.GetUserInventory({
+        "PlayFabId": currentPlayerId
+    });
+    var currentGem = userInv.VirtualCurrency.GP;
+    if (currentGem < gemPrice) {
+        return { "Error": "Insufficient Gem" };
+    }
+    if (gemPrice > 0) {
+        server.SubtractUserVirtualCurrency(
+            {
+                "PlayFabId": currentPlayerId,
+                "VirtualCurrency": "GP",
+                "Amount": gemPrice
+            }
+        );
+    }
+    var items = [];
+    for (var i = 0; i < count; i++) {
+        var randomItem = server.EvaluateRandomResultTable(
+            {
+                "CatalogVersion": catalogVersion,
+                "PlayFabId": currentPlayerId,
+                "TableId": dropTableId
+            }
+        );
+        if (randomItem.ResultItemId != "Nothing") {
+            log.info("item " + JSON.stringify(randomItem));
+            items.push(randomItem.ResultItemId);
+        }
+    }
+    if (count == 11) {
+        var hasAnyAboveFour = false;
+        for (var i = 0; i < items.length; i++) {
+            var _str = items[i];
+            var str = _str.substr(_str.length - 2, 1);
+            if (parseInt(str) >= 4) {
+                hasAnyAboveFour = true;
+                break;
+            }
+        }
+        if (!hasAnyAboveFour) {
+            var randomItem = server.EvaluateRandomResultTable(
+                {
+                    "CatalogVersion": catalogVersion,
+                    "PlayFabId": currentPlayerId,
+                    "TableId": (dropTableId + "Bonus")
+                }
+            );
+            items.pop();
+            items.push(randomItem.ResultItemId);
+        }
+    }
+    var realItems = [];
+    var itemGrantResult = server.GrantItemsToUser(
+        {
+            "CatalogVersion": catalogVersion,
+            "PlayFabId": currentPlayerId,
+            "ItemIds": items
+        }
+    );
+    var grantedItems = itemGrantResult["ItemGrantResults"];
+    for (var i = 0; i < grantedItems.length; i++) {
+        realItems.push(updateItemData(grantedItems[i]));
+    }
+    var result = {};
+    result.Items = realItems;
+    return result;
+};
+
+
 handlers.ClearAllUserData = function (args) {
     var allChars = server.GetAllUsersCharacters({
         "PlayFabId": currentPlayerId
