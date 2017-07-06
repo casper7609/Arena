@@ -209,7 +209,7 @@ handlers.ClearLevel = function (args)
     if (userData.UserInventoryMax && userData.UserInventoryMax.Value) {
         invMax = (userData.UserInventoryMax.Value);
     }
-
+    var inventoryIsFull = userInventory.Inventory.length >= invMax;
     for(var i = 0; i < 5; i++)
     {
         var townItem = server.EvaluateRandomResultTable(
@@ -221,7 +221,7 @@ handlers.ClearLevel = function (args)
         );
         if (townItem.ResultItemId != "Nothing") {
             log.info("item " + JSON.stringify(townItem));
-            if (userInventory.Inventory.length >= invMax)
+            if (inventoryIsFull)
             {
                 var str = townItem.ResultItemId;
                 if (str.includes("GarbageItem") || str.includes("Bundle")) {
@@ -255,6 +255,8 @@ handlers.ClearLevel = function (args)
         }
     }
     var result = {};
+    result.Items = [];
+    result.InventoryIsFull = inventoryIsFull;
     if (realItems.length > 0)
     {
         result.Items = realItems;
