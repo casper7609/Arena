@@ -209,7 +209,14 @@ handlers.ClearLevel = function (args)
     if (userData.UserInventoryMax && userData.UserInventoryMax.Value) {
         invMax = (userData.UserInventoryMax.Value);
     }
-    var inventoryIsFull = userInventory.Inventory.length >= invMax;
+    var actualInventoryCount = 0;
+    //e.ItemClass != "Reward" && e.ItemClass != "Garbage" && e.ItemClass != "Bundle"
+    for (var i = 0; i < userInventory.Inventory.length; i++)
+    {
+        var e = userInventory.Inventory[i];
+        if (e.ItemClass != "Reward" && e.ItemClass != "Garbage" && e.ItemClass != "Bundle") actualInventoryCount++;
+    }
+    var inventoryIsFull = actualInventoryCount >= invMax;
     for(var i = 0; i < 5; i++)
     {
         var townItem = server.EvaluateRandomResultTable(
