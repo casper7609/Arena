@@ -1147,6 +1147,7 @@ handlers.MapQuestReward = function (args) {
         }
     );
     var grantedItems = itemGrantResult["ItemGrantResults"];
+    log.info(JSON.parse(grantedItems));
     server.UnlockContainerInstance(
         {
             "CatalogVersion": catalogVersion,
