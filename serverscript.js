@@ -1146,7 +1146,7 @@ handlers.MapQuestReward = function (args) {
             "ItemIds": [args.ContainerId]
         }
     );
-    log.info(JSON.parse(itemGrantResult));
+    log.info(JSON.stringify(itemGrantResult));
     var grantedItems = itemGrantResult["ItemGrantResults"];
     server.UnlockContainerInstance(
         {
