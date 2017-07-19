@@ -1,7 +1,7 @@
 var catalogVersion = "0.9";
 var LVL_UP_PAC = "LVL_UP_PAC";
 var MON_SUB_PAC = "MON_SUB_PAC";
-var UserInventoryMax = 20;
+var UserInventoryMax = 40;
 var enchantPriceInGD = 10;
 function rand(from, to) {
     return Math.floor((Math.random() * to) + from);
