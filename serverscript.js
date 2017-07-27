@@ -534,8 +534,13 @@ handlers.MaxEnergyPoint = function (args) {
 function getUserLevel(userData)
 {
     var userExp = 0;
-    if (userData.Data.UserLevel == null) {
-        log.info("Need to add UserLevel");
+    var myRank = server.GetLeaderboardAroundUser({
+        "PlayFabId": currentPlayerId,
+        "StatisticName": "UserExp",
+        "MaxResultsCount": 1
+    });
+    if (myRank.Leaderboard == null || myRank.Leaderboard.length == 0) {
+        log.info("Need to UpdatePlayerStatistics UserExp");
         server.UpdatePlayerStatistics({
             "PlayFabId": currentPlayerId,
             "Statistics": [
@@ -547,10 +552,12 @@ function getUserLevel(userData)
         });
         userExp = 0;
     }
-    else {
-        userExp = parseInt(userData.Data.UserLevel.Value);
-        log.info("userExp " + userExp);
+    else
+    {
+        userExp = parseInt(myRank.Leaderboard[0].StatValue);
     }
+    log.info("userExp " + userExp);
+
     var userLevel = 1;
     var xpToNextLevel = Math.ceil(100 * Math.pow(1.2, userLevel));
     while (userExp > xpToNextLevel)
