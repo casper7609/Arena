@@ -537,7 +537,7 @@ function getUserLevel(userData)
     if (userData.Data.UserLevel == null) {
         log.info("Need to add UserLevel");
         server.UpdatePlayerStatistics({
-            "PlayFabId": playFabId,
+            "PlayFabId": currentPlayerId,
             "Statistics": [
                 {
                     "StatisticName": "UserExp",
