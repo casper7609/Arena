@@ -388,7 +388,7 @@ handlers.GetEnergyPoint = function (args) {
         "PlayFabId": currentPlayerId
     });
     var userLevel = getUserLevel(userData);
-    
+    userLevel = Math.min(userLevel, 130);
 
     var baseEnergy = userInv.VirtualCurrency.BE;
     var baseEnergyMax = 56;
@@ -536,14 +536,15 @@ function getUserLevel(userData)
     var userExp = 0;
     if (userData.Data.UserLevel == null) {
         log.info("Need to add UserLevel");
-        var updatedUserData = server.UpdateUserData(
-        {
-            "PlayFabId": currentPlayerId,
-            "Data": {
-                "UserLevel": 0
-            }
+        server.UpdatePlayerStatistics({
+            "PlayFabId": playFabId,
+            "Statistics": [
+                {
+                    "StatisticName": "UserExp",
+                    "Value": 0
+                }
+            ],
         });
-        log.info("UpdateResult " + JSON.stringify(updatedUserData));
         userExp = 0;
     }
     else {
@@ -655,13 +656,6 @@ handlers.SkillLevelStatus = function (args) {
             "ConsumeCount": item.Count,
         });
     }
-    var updatedUserData = server.UpdateUserData(
-    {
-        "PlayFabId": currentPlayerId,
-        "Data": {
-            "SkillLevelStatus": args.SkillLevelStatus
-        }
-    });
     return {};
 };
 handlers.DecomposeItems = function (args) {
