@@ -1169,4 +1169,13 @@ handlers.PvPReward = function (args) {
         },
         "Permission": "Public"
     });
+    server.UpdatePlayerStatistics({
+        "PlayFabId": args.PlayFabId,
+        "Statistics": [
+            {
+                "StatisticName": "PvPRanking",
+                "Value": args.ResetScore
+            }
+        ],
+    });
 };
