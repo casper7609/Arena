@@ -1163,7 +1163,7 @@ handlers.GetServerTime = function (args) {
 handlers.PvPReward = function (args) {
     server.UpdateUserData(
     {
-        "PlayFabId": playFabId,
+        "PlayFabId": args.PlayFabId,
         "Data": {
             "PvPRewards": JSON.stringify(args.PvPRewards)
         },
