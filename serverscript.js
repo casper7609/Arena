@@ -358,7 +358,6 @@ handlers.GetEnergyPoint = function (args) {
             "PlayFabId": currentPlayerId,
             "Keys": [
                 "LastEnergyRequestTime",
-                "UserLevel"
             ],
         }
     );
@@ -1160,4 +1159,14 @@ handlers.MapQuestReward = function (args) {
 };
 handlers.GetServerTime = function (args) {
     return { "Time": new Date().getTime() };
+};
+handlers.PvPReward = function (args) {
+    server.UpdateUserData(
+    {
+        "PlayFabId": playFabId,
+        "Data": {
+            "PvPRewards": JSON.stringify(args.PvPRewards)
+        },
+        "Permission": "Public"
+    });
 };
